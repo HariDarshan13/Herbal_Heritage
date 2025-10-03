@@ -71,7 +71,7 @@ export default function AdminDashboard() {
 
   const updateRemedyStatus = async (id: string, status: 'approved' | 'rejected') => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/remedies/${id}/status`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://herbal-heritage-backendssss.onrender.com'}/api/remedies/${id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status })
