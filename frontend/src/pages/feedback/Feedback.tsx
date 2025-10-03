@@ -282,10 +282,10 @@ export default function Feedback() {
                     <div>Email: feedback@herbalheritage.com</div>
                     <div>Phone: +91 9876543210</div>
                   </div>
-                  <Button variant="outline" className="w-full mt-3" asChild>
-                    <a href="/contact">
+                   <Button variant="outline" className="w-full mt-3" asChild>
+                    <Link to="/contact">
                       {t('contactUs')}
-                    </a>
+                     </Link>
                   </Button>
                 </CardContent>
               </Card>
