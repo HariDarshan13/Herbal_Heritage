@@ -54,7 +54,7 @@ export default function AdminDashboard() {
 
     const fetchPendingRemedies = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/remedies`);
+        const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://herbal-heritage-backendssss.onrender.com'}/api/remedies`);
         if (!res.ok) throw new Error('Failed to fetch remedies');
 
         const json = await res.json();
