@@ -13,13 +13,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// ================== Root route ==================
+app.get("/", (req, res) => {
+  res.json({
+    status: "ok",
+    message: "🌿 Herbal Heritage Backend is running 🚀",
+    timestamp: new Date()
+  });
+});
+
+// ================== API Routes ==================
 app.use("/api/contact", contactRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/remedies", remedyRoutes);
 app.use("/api/feedback", feedbackRoutes);
 
-// MongoDB connection
+// ================== MongoDB connection ==================
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
