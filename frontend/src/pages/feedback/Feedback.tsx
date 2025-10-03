@@ -11,11 +11,12 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { remedies } from '@/data/remedies';
 import { toast } from '@/hooks/use-toast';
 import { MessageSquare, Star, Send, Loader2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 export default function Feedback() {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
-  
+
   const [formData, setFormData] = useState({
     type: '',
     remedyId: '',
@@ -35,41 +36,48 @@ export default function Feedback() {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://herbal-heritage-backendssss.onrender.com'}/api/feedback`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+   try {
+  const res = await fetch("https://herbal-backend-un9h.onrender.com/api/feedback", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(formData),
+  });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || 'Something went wrong');
 
-      toast({
-        title: "Feedback Submitted",
-        description: "Thank you for your feedback! We'll review it shortly.",
-      });
+      if (res.ok) {
+        toast({
+          title: "Feedback Submitted",
+          description: "Thank you for your feedback! We've emailed you a confirmation.",
+        });
 
-      // Reset form
-      setFormData({
-        type: '',
-        remedyId: '',
-        rating: '',
-        subject: '',
-        message: '',
-        email: '',
-        name: ''
-      });
-
-    } catch (err: any) {
+        setFormData({
+          type: '',
+          remedyId: '',
+          rating: '',
+          subject: '',
+          message: '',
+          email: '',
+          name: ''
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: data.message || "Something went wrong",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: err.message || 'Failed to submit feedback',
-        variant: 'destructive'
+        description: error.message || "Server error",
+        variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
+
+    setIsLoading(false);
   };
 
   const renderStars = (rating: number, onRatingChange: (rating: number) => void) => {
@@ -119,7 +127,7 @@ export default function Feedback() {
                     </div>
                   </div>
                 </CardHeader>
-                
+
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Personal Information */}
@@ -134,7 +142,7 @@ export default function Feedback() {
                           placeholder="Enter your name"
                         />
                       </div>
-                      
+
                       <div className="space-y-2">
                         <Label htmlFor="email">Email Address</Label>
                         <Input
@@ -165,7 +173,7 @@ export default function Feedback() {
                       </Select>
                     </div>
 
-                    {/* Remedy Selection */}
+                    {/* Remedy Selection (if remedy review) */}
                     {formData.type === 'remedy-review' && (
                       <div className="space-y-2">
                         <Label>Select Remedy</Label>
@@ -184,7 +192,7 @@ export default function Feedback() {
                       </div>
                     )}
 
-                    {/* Rating */}
+                    {/* Rating (if remedy review) */}
                     {formData.type === 'remedy-review' && (
                       <div className="space-y-2">
                         <Label>Rating</Label>
@@ -282,11 +290,44 @@ export default function Feedback() {
                     <div>Email: feedback@herbalheritage.com</div>
                     <div>Phone: +91 9876543210</div>
                   </div>
-                   <Button variant="outline" className="w-full mt-3" asChild>
+                  <Button variant="outline" className="w-full mt-3" asChild>
                     <Link to="/contact">
                       {t('contactUs')}
                      </Link>
-                  </Button>
+                  </Button>   
+                </CardContent>
+              </Card>
+
+              {/* Recent Reviews */}
+              <Card className="shadow-natural">
+                <CardHeader>
+                  <CardTitle className="text-herbal">Recent Reviews</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="border-l-2 border-herbal pl-3">
+                    <div className="flex items-center space-x-1 mb-1">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star key={star} className="h-3 w-3 text-yellow-accent fill-current" />
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      "Turmeric milk worked great for my cold!"
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">- Priya S.</p>
+                  </div>
+
+                  <div className="border-l-2 border-herbal pl-3">
+                    <div className="flex items-center space-x-1 mb-1">
+                      {[1, 2, 3, 4].map((star) => (
+                        <Star key={star} className="h-3 w-3 text-yellow-accent fill-current" />
+                      ))}
+                      <Star className="h-3 w-3 text-muted-foreground" />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      "Neem paste helped with my skin issues."
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">- Ravi K.</p>
+                  </div>
                 </CardContent>
               </Card>
             </div>
