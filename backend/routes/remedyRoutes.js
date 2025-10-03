@@ -1,45 +1,66 @@
+// routes/remedyRoutes.js
 import express from "express";
 import Remedy from "../models/Remedy.js";
 
 const router = express.Router();
 
-// Submit new remedy
-router.post("/", async (req, res) => {
-  try {
-    const remedy = new Remedy({
-      ...req.body,
-      status: "pending", // always pending for admin review
-      submittedBy: req.body.userId || null
-    });
-    await remedy.save();
-    res.json({ success: true, remedy });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Error saving remedy" });
-  }
-});
-
-// Get all remedies (for admin dashboard)
+// GET all remedies
 router.get("/", async (req, res) => {
   try {
-    const remedies = await Remedy.find().sort({ createdAt: -1 });
-    res.json({ success: true, remedies });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Error fetching remedies" });
+    const remedies = await Remedy.find();
+    res.json(remedies);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
   }
 });
 
-// Update status (approve/reject)
-router.put("/:id/status", async (req, res) => {
+// GET a single remedy by ID
+router.get("/:id", async (req, res) => {
   try {
-    const { status } = req.body;
-    const remedy = await Remedy.findByIdAndUpdate(
+    const remedy = await Remedy.findById(req.params.id);
+    if (!remedy) return res.status(404).json({ message: "Remedy not found" });
+    res.json(remedy);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+// POST new remedy
+router.post("/", async (req, res) => {
+  try {
+    const { name, description, benefits } = req.body;
+    const newRemedy = new Remedy({ name, description, benefits });
+    await newRemedy.save();
+    res.status(201).json(newRemedy);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+// DELETE a remedy
+router.delete("/:id", async (req, res) => {
+  try {
+    const remedy = await Remedy.findByIdAndDelete(req.params.id);
+    if (!remedy) return res.status(404).json({ message: "Remedy not found" });
+    res.json({ message: "Remedy deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+});
+
+// UPDATE a remedy
+router.put("/:id", async (req, res) => {
+  try {
+    const { name, description, benefits } = req.body;
+    const updatedRemedy = await Remedy.findByIdAndUpdate(
       req.params.id,
-      { status },
+      { name, description, benefits },
       { new: true }
     );
-    res.json({ success: true, remedy });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Error updating remedy status" });
+    if (!updatedRemedy) return res.status(404).json({ message: "Remedy not found" });
+    res.json(updatedRemedy);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
   }
 });
 
