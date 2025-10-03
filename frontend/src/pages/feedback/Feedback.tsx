@@ -36,7 +36,7 @@ export default function Feedback() {
     setIsLoading(true);
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/api/feedback`, {
+      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://herbal-heritage-backendssss.onrender.com'}/api/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
