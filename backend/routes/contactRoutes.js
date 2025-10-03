@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
 
 const router = express.Router();
 
-// POST /api/contact
+// ================== POST /api/contact ==================
 router.post("/", async (req, res) => {
   try {
     const { name, email, subject, message, urgency } = req.body;
@@ -43,6 +43,17 @@ router.post("/", async (req, res) => {
   } catch (err) {
     console.error("❌ Contact submission error:", err);
     res.status(500).json({ success: false, message: err.message || "Server error" });
+  }
+});
+
+// ================== GET /api/contact ==================
+router.get("/", async (req, res) => {
+  try {
+    const contacts = await Contact.find().sort({ createdAt: -1 });
+    res.json({ success: true, contacts });
+  } catch (err) {
+    console.error("❌ Error fetching contacts:", err);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
