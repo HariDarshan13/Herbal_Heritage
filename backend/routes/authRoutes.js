@@ -4,7 +4,7 @@ import User from "../models/User.js";
 
 const router = express.Router();
 
-// Register user
+// ================== Register user ==================
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -36,19 +36,29 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// Login user
+// ================== Login user / admin ==================
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
 
-    // Admin shortcut
+    // Trim email/password to avoid accidental spaces
+    email = email.trim();
+    password = password.trim();
+
+    // --- ADMIN LOGIN ---
     if (email === "admin@herbalheritage.com" && password === "admin123") {
       return res.json({
         success: true,
-        user: { id: "1", name: "👑 Admin User", email, role: "admin" }
+        user: {
+          id: "1",
+          name: "👑 Admin User",
+          email,
+          role: "admin"
+        }
       });
     }
 
+    // --- REGULAR USER LOGIN ---
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ success: false, message: "Invalid credentials" });
 
@@ -64,12 +74,14 @@ router.post("/login", async (req, res) => {
         role: user.role
       }
     });
+
   } catch (err) {
+    console.error("Login error:", err);
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
 
-// 🔎 NEW: Get all users (like remedies)
+// ================== Get all users ==================
 router.get("/users", async (req, res) => {
   try {
     const users = await User.find().select("-password").sort({ createdAt: -1 });
@@ -79,7 +91,7 @@ router.get("/users", async (req, res) => {
   }
 });
 
-// 🔎 NEW: Get single user by ID
+// ================== Get single user by ID ==================
 router.get("/users/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id).select("-password");
