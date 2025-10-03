@@ -4,7 +4,7 @@ import nodemailer from "nodemailer";
 
 const router = express.Router();
 
-// POST /api/feedback
+// ================== POST /api/feedback (Submit Feedback) ==================
 router.post("/", async (req, res) => {
   try {
     const { name, email, type, remedyId, rating, subject, message } = req.body;
@@ -41,4 +41,16 @@ router.post("/", async (req, res) => {
     res.status(500).json({ success: false, message: err.message || "Server error" });
   }
 });
+
+// ================== GET /api/feedback (List Feedbacks) ==================
+router.get("/", async (req, res) => {
+  try {
+    const feedbacks = await Feedback.find().sort({ createdAt: -1 });
+    res.json(feedbacks);
+  } catch (err) {
+    console.error("❌ Error fetching feedback:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 export default router;
