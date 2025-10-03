@@ -44,7 +44,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   ): Promise<boolean> => {
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"}/api/auth/register`,
+        `${import.meta.env.VITE_BACKEND_URL || "https://herbal-heritage-backendssss.onrender.com"}/api/auth/register`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_BACKEND_URL || "http://localhost:5000"}/api/auth/login`,
+        `${import.meta.env.VITE_BACKEND_URL || "https://herbal-heritage-backendssss.onrender.com"}/api/auth/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
