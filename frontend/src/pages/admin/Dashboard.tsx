@@ -2,16 +2,11 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { 
-  CheckCircle, 
-  XCircle, 
-  Clock, 
-  Eye 
-} from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Eye } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -41,10 +36,12 @@ export default function AdminDashboard() {
   const { t } = useLanguage();
   const { isAdmin, user } = useAuth();
   const navigate = useNavigate();
+  const API_URL ="https://herbal-heritage-backendssss.onrender.com";
 
   const [pendingRemedies, setPendingRemedies] = useState<Remedy[]>([]);
   const [selectedRemedy, setSelectedRemedy] = useState<Remedy | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (!isAdmin) {
@@ -53,40 +50,44 @@ export default function AdminDashboard() {
     }
 
     const fetchPendingRemedies = async () => {
+      setIsLoading(true);
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://herbal-heritage-backendssss.onrender.com'}/api/remedies`);
+        const res = await fetch(`${API_URL}/api/remedies`);
         if (!res.ok) throw new Error('Failed to fetch remedies');
 
-        const json = await res.json();
-        const allRemedies = Array.isArray(json.remedies) ? json.remedies : [];
+        const data = await res.json();
+        const allRemedies = Array.isArray(data.remedies) ? data.remedies : [];
         const pending = allRemedies.filter(r => r.status?.toLowerCase() === 'pending');
         setPendingRemedies(pending);
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
+        toast.error(err.message || 'Failed to fetch remedies');
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchPendingRemedies();
-  }, [isAdmin, navigate]);
+  }, [isAdmin, navigate, API_URL]);
 
   const updateRemedyStatus = async (id: string, status: 'approved' | 'rejected') => {
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL || 'https://herbal-heritage-backendssss.onrender.com'}/api/remedies/${id}/status`, {
+      const res = await fetch(`${API_URL}/api/remedies/${id}/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status }),
       });
 
-      if (!res.ok) throw new Error('Failed to update status');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || 'Failed to update status');
 
       // Remove from pending in frontend
       setPendingRemedies(prev => prev.filter(r => r._id !== id));
 
-      // Show toast notification
       toast.success(`Remedy ${status === 'approved' ? 'approved' : 'rejected'} successfully`);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error('Something went wrong');
+      toast.error(err.message || 'Something went wrong');
     }
   };
 
@@ -113,7 +114,6 @@ export default function AdminDashboard() {
             </p>
           </div>
 
-          {/* Pending Remedies */}
           <Card className="shadow-natural">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2 text-earthy">
@@ -125,7 +125,9 @@ export default function AdminDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {pendingRemedies.length === 0 ? (
+              {isLoading ? (
+                <p className="text-muted-foreground">Loading remedies...</p>
+              ) : pendingRemedies.length === 0 ? (
                 <p className="text-muted-foreground">No pending remedies</p>
               ) : (
                 <div className="space-y-4">
